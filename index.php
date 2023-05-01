@@ -83,7 +83,7 @@ try {
   $biography = $_POST['biography'];
 
   $stmt->execute();
-  $dbh = new PDO('mysql:host=localhost;dbname=u52841', $user, $pass);
+  $dbh = new PDO('mysql:host=localhost;dbname=u53712', $user, $pass);
   $last_id = $db->lastInsertId();
 
   $stmt = $db->prepare("INSERT INTO abilities (ability) VALUES (:ability)");
