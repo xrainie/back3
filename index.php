@@ -67,7 +67,7 @@ $db = new PDO('mysql:host=localhost;dbname=u53712', $user, $pass,
 // Подготовленный запрос. Не именованные метки.
 
 try {
-  $stmt = $db->prepare("INSERT INTO application (name, email, year, gender, limbs, biography) VALUES (:name, :email, :year, :gender, :limbs, :biography)");
+  $stmt = $db->prepare("INSERT INTO application (name, email, year, gender, limb, biography) VALUES (:name, :email, :year, :gender, :limbs, :biography)");
   $stmt->bindParam(':name', $first_name);
   $stmt->bindParam(':email', $email);
   $stmt->bindParam(':year', $date);
