@@ -86,9 +86,9 @@ try {
   $dbh = new PDO('mysql:host=localhost;dbname=u53712', $user, $pass);
   $last_id = $db->lastInsertId();
 
-  $stmt = $db->prepare("INSERT INTO abilities (ability) VALUES (:ability)");
   
   foreach($_POST['abilities'] as $abil) {
+    $stmt = $db->prepare("INSERT INTO abilities (id, $abil) VALUES (:id, 1)");
     $stmt->bindParam(':id', $id);
     $stmt->bindParam(':ability', $ability);
     $id = $last_id;
