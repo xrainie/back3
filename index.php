@@ -9,10 +9,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
   // В суперглобальном массиве $_GET PHP хранит все параметры, переданные в текущем запросе через URL.
   if (!empty($_GET['save'])) {
     // Если есть параметр save, то выводим сообщение пользователю.
-    print('Спасибо, результаты сохранены.');
+    print('Результаты сохранены.');
   }
   // Включаем содержимое файла form.php.
-  include('index.html');
+  include('form.php');
   // Завершаем работу скрипта.
   exit();
 }
@@ -20,73 +20,88 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 // Проверяем ошибки.
 $errors = FALSE;
-if (empty($_POST['first_name'])) {
-  print('Заполните имя.<br/>');
+if (empty($_POST['fio'])) {
+  print('Нет данных: Имя.<br/>');
   $errors = TRUE;
 }
+
 if (empty($_POST['email'])) {
-  print('Заполните адрес электронной почты.<br/>');
+  print('Нет данных: Почта.<br/>');
   $errors = TRUE;
 }
 
-if (empty($_POST['field-date'])) {
-  print('Заполните год.<br/>');
-  $errors = TRUE;
-}
-if (empty($_POST['checkbox'])) {
-  print('Ознакомьтесь с контрактом.<br/>');
-  $errors = TRUE;
-}
-if (empty($_POST['biography'])) {
-  print('Заполните вашу биографию.<br/>');
+if (empty($_POST['year']) || !is_numeric($_POST['year']) || !preg_match('/^\d+$/', $_POST['year'])) {
+  print('Нет данных: Год рождения.<br/>');
   $errors = TRUE;
 }
 
+if(empty($_POST['biography'])) {
+  print('Нет данных: Биография.<br/>');
+  $errors = TRUE;
+}
+
+if(!isset($_POST['r1'])){
+  print('Нет данных: Пол.<br/>');
+  $errors = TRUE;
+}
+
+if(!isset($_POST['abilities'])){
+  print('Нет данных: Способности.<br/>');
+  $errors = TRUE;
+}
+
+if(!isset($_POST['r2'])){
+  print('Нет данных: Количество конечностей.<br/>');
+  $errors = TRUE;
+}
+
+if(!isset($_POST['cb'])){
+  print('Отсутствует согласие с контрактом.<br/>');
+  $errors = TRUE;
+}
+
+
+
+// *************
+// Тут необходимо проверить правильность заполнения всех остальных полей.
+// *************
 
 if ($errors) {
   // При наличии ошибок завершаем работу скрипта.
   exit();
 }
 
-//Сохранение введенных данных в переменные
-
-$first_name = $_POST['first_name'];
-$email = $_POST['email'];
-$gender = $_POST['gender'];
-$limbs = $_POST['limbs'];
-$biography = $_POST['biography'];
-$date = $_POST['field-date'];
-
 // Сохранение в базу данных.
 
 $user = 'u53712'; // Заменить на ваш логин uXXXXX
 $pass = '5427961'; // Заменить на пароль, такой же, как от SSH
-$db = new PDO('mysql:host=localhost;dbname=u53712', $user, $pass,
+$db = new PDO('mysql:host=localhost;dbname=u52841', $user, $pass,
   [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); // Заменить test на имя БД, совпадает с логином uXXXXX
 
 // Подготовленный запрос. Не именованные метки.
 
 try {
   $stmt = $db->prepare("INSERT INTO application (name, email, year, gender, limb, biography) VALUES (:name, :email, :year, :gender, :limbs, :biography)");
-  $stmt->bindParam(':name', $first_name);
+  $stmt->bindParam(':name', $name);
   $stmt->bindParam(':email', $email);
-  $stmt->bindParam(':year', $date);
+  $stmt->bindParam(':year', $year);
   $stmt->bindParam(':gender', $gender);
   $stmt->bindParam(':limbs', $limbs);
   $stmt->bindParam(':biography', $biography);
 
-  $name = $_POST['first_name'];
+  $name = $_POST['fio'];
   $email = $_POST['email'];
-  $year = $_POST['field-date'];
-  $gender = $_POST['gender'][0];
-  $limbs = $_POST['limbs'][0];
+  $year = $_POST['year'];
+  $gender = $_POST['r1'][0];
+  $limbs = $_POST['r2'][0];
   $biography = $_POST['biography'];
 
   $stmt->execute();
   $dbh = new PDO('mysql:host=localhost;dbname=u53712', $user, $pass);
   $last_id = $db->lastInsertId();
 
-  $stmt = $db->prepare("INSERT INTO abilities (id, $abil) VALUES (:id, 1)");
+  $stmt = $db->prepare("INSERT INTO abilities (id, ability) VALUES (:id, :ability)");
+  
   foreach($_POST['abilities'] as $abil) {
     $stmt->bindParam(':id', $id);
     $stmt->bindParam(':ability', $ability);
@@ -95,18 +110,12 @@ try {
     
     $stmt->execute();
   }
+
 }
 catch(PDOException $e){
   print('Error : ' . $e->getMessage());
   exit();
 }
-
-/*
-$query = "INSERT INTO application (name, email, year, gender, limb, biography) VALUES ('$first_name', '$email', '$date', '$gender', '$limbs', '$biography')";
-
-$result = mysqli_query($db, $query)
-or die ("Ошибка выполнения запроса к БД");
-*/
 //  stmt - это "дескриптор состояния".
  
 //  Именованные метки.
